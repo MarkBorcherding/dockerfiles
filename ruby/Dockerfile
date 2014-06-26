@@ -4,23 +4,14 @@ MAINTAINER Mark Borcherding <markborcherding@gmail.com>
 
 # Update apt
 RUN apt-get update
+RUN apt-get --yes --quiet install build-essential zlib1g-dev
 
-# Install the dependencies
-RUN  apt-get install --quiet --yes git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
-
-# Get Ruby source
-WORKDIR /tmp
-RUN wget http://ftp.ruby-lang.org/pub/ruby/2.1/ruby-2.1.2.tar.gz
-
-# Expand the tarball
-RUN mkdir -p /usr/local/src/ruby
-RUN tar -xzf ruby-2.1.2.tar.gz -C /usr/local/src/ruby
-
-# Build it
-WORKDIR /usr/local/src/ruby/ruby-2.1.2
-RUN ./configure
-RUN make
-RUN make install
+RUN mkdir /src
+WORKDIR /src
+RUN git clone https://github.com/sstephenson/ruby-build.git
+WORKDIR /src/ruby-build
+RUN ./install.sh
+RUN ruby-build 1.9.3-p547 /usr/local
 
 # Grab Bundler
-RUN gem install --no-document bundler
+RUN gem install --no-rdoc --no-ri bundler
