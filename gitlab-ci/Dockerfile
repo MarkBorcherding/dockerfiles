@@ -55,9 +55,9 @@ RUN chmod +x /etc/my_init.d/99_mysql_setup.sh
 ADD var/lib/mysql/setup/01_gitlab.sql /var/lib/mysql/setup/01_gitlab.sql
 
 # Add runit start up
-RUN mkdir -p /service/mysql
-ADD service/mysql/run /service/mysql/run
-RUN chmod +x /service/mysql/run
+RUN mkdir -p /etc/service/mysql
+ADD etc/service/mysql/run /etc/service/mysql/run
+RUN chmod +x /etc/service/mysql/run
 
 
 # Get Gitlab-ci
