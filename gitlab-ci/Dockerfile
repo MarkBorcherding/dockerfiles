@@ -80,4 +80,4 @@ RUN sudo chmod -R u+rwX  tmp/pids/
 RUN sudo -u gitlab_ci -H bundle install --without development test postgres --deployment
 
 
-
+# following https://gitlab.com/gitlab-org/gitlab-ci/blob/master/doc/install/installation.md
