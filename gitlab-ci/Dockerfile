@@ -49,35 +49,56 @@ RUN echo "mysql-server mysql-server/root_password password root" | debconf-set-s
 RUN echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections
 RUN apt-get install --yes mysql-server mysql-client libmysqlclient-dev
 
-# Add the setup scripts
+# Add the database setup scripts
 ADD etc/my_init.d/99_mysql_setup.sh /etc/my_init.d/99_mysql_setup.sh
 RUN chmod +x /etc/my_init.d/99_mysql_setup.sh
 ADD var/lib/mysql/setup/01_gitlab.sql /var/lib/mysql/setup/01_gitlab.sql
+RUN mkdir -p /var/lib/mysql/mysql
 
 # Add runit start up
 RUN mkdir -p /etc/service/mysql
 ADD etc/service/mysql/run /etc/service/mysql/run
 RUN chmod +x /etc/service/mysql/run
 
-
 # Get Gitlab-ci
 WORKDIR /home/gitlab_ci/
-RUN sudo -u gitlab_ci -H git clone https://gitlab.com/gitlab-org/gitlab-ci.git
+USER gitlab_ci
+RUN git clone https://gitlab.com/gitlab-org/gitlab-ci.git
 
 # Drop in config files for gitlab
 WORKDIR /home/gitlab_ci/gitlab-ci
-RUN sudo -u gitlab_ci -H git checkout 5-0-stable
+RUN git checkout 5-0-stable
 ADD home/gitlab_ci/gitlab-ci/config/application.yml /home/gitlab_ci/gitlab-ci/config/application.yml
 ADD home/gitlab_ci/gitlab-ci/config/unicorn.rb /home/gitlab_ci/gitlab-ci/config/unicorn.rb
+ADD home/gitlab_ci/gitlab-ci/config/database.yml /home/gitlab_ci/gitlab-ci/config/database.yml
 
 # Make sockets
-RUN sudo -u gitlab_ci -H mkdir -p tmp/sockets/
-RUN sudo chmod -R u+rwX  tmp/sockets/
-RUN sudo -u gitlab_ci -H mkdir -p tmp/pids/
-RUN sudo chmod -R u+rwX  tmp/pids/
+RUN mkdir -p tmp/sockets/
+RUN chmod -R u+rwX  tmp/sockets/
+RUN mkdir -p tmp/pids/
+RUN chmod -R u+rwX  tmp/pids/
 
+ENV RAILS_ENV production
 # Install gems
-RUN sudo -u gitlab_ci -H bundle install --without development test postgres --deployment
+RUN bundle install --without development test postgres --deployment
 
+USER root
+
+# Add the setup scripts
+ADD etc/my_init.d/99a_setup_application_database.sh /etc/my_init.d/99a_setup_application_database.sh
+RUN chmod +x /etc/my_init.d/99a_setup_application_database.sh
+
+
+# Regenerate SSH host keys. baseimage-docker does not contain any, so you
+# have to do that yourself. You may also comment out this instruction; the
+# init system will auto-generate one during boot.
+RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
+
+# Use baseimage-docker's init system.
+CMD ["/sbin/my_init"]
+
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # following https://gitlab.com/gitlab-org/gitlab-ci/blob/master/doc/install/installation.md
