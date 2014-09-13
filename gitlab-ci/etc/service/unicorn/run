@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd /home/gitlab_ci/gitlab-ci
+
+sudo --user gitlab_ci \
+     --preserve-env \
+     --set-home \
+     bundle exec unicorn_rails \
+        --config-file /home/gitlab_ci/gitlab-ci/config/unicorn.rb \
+        --env $RAILS_ENV

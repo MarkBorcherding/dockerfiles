@@ -1,1 +1,7 @@
-docker run -i -t markborcherding/gitlab-ci /bin/bash
+docker run \
+  --interactive \
+  --tty \
+  --publish 80:80 \
+  markborcherding/gitlab-ci  \
+  /bin/bash
+

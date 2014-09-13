@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd /home/gitlab_ci/gitlab-ci
+
+sudo --user gitlab_ci \
+     --preserve-env \
+     --set-home \
+    bundle exec sidekiq \
+      --queue runner,common,default \
+      --environment $RAILS_ENV \
+      --logfile /home/gitlab_ci/gitlab-ci/log/sidekiq.log
+

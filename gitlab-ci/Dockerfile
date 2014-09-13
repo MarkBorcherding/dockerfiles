@@ -29,6 +29,11 @@ RUN apt-get -qy install \
       wget \
       zlib1g-dev
 
+# Install the database packages
+RUN echo "mysql-server mysql-server/root_password password root" | debconf-set-selections
+RUN echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections
+RUN apt-get install --yes mysql-server mysql-client libmysqlclient-dev
+
 RUN update-alternatives --set editor /usr/bin/vim.basic
 
 # Install ruby-build
@@ -43,22 +48,6 @@ RUN ruby-build 2.1.2 /usr/local
 RUN gem install bundler --no-ri --no-rdoc
 
 RUN adduser --disabled-login --gecos 'GitLab CI' gitlab_ci
-
-# Install the database packages
-RUN echo "mysql-server mysql-server/root_password password root" | debconf-set-selections
-RUN echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections
-RUN apt-get install --yes mysql-server mysql-client libmysqlclient-dev
-
-# Add the database setup scripts
-ADD etc/my_init.d/99_mysql_setup.sh /etc/my_init.d/99_mysql_setup.sh
-RUN chmod +x /etc/my_init.d/99_mysql_setup.sh
-ADD var/lib/mysql/setup/01_gitlab.sql /var/lib/mysql/setup/01_gitlab.sql
-RUN mkdir -p /var/lib/mysql/mysql
-
-# Add runit start up
-RUN mkdir -p /etc/service/mysql
-ADD etc/service/mysql/run /etc/service/mysql/run
-RUN chmod +x /etc/service/mysql/run
 
 # Get Gitlab-ci
 WORKDIR /home/gitlab_ci/
@@ -79,26 +68,72 @@ RUN mkdir -p tmp/pids/
 RUN chmod -R u+rwX  tmp/pids/
 
 ENV RAILS_ENV production
-# Install gems
+
 RUN bundle install --without development test postgres --deployment
 
 USER root
 
+
+# Add the database setup scripts
+ADD etc/my_init.d/99_mysql_setup.sh /etc/my_init.d/99_mysql_setup.sh
+RUN chmod +x /etc/my_init.d/99_mysql_setup.sh
+ADD var/lib/mysql/setup/01_gitlab.sql /var/lib/mysql/setup/01_gitlab.sql
+RUN mkdir -p /var/lib/mysql/mysql
+
+# Add runit start up
+RUN mkdir -p /etc/service/mysql
+ADD etc/service/mysql/run /etc/service/mysql/run
+RUN chmod +x /etc/service/mysql/run
+
+# Add unicorn runit start up
+RUN mkdir -p /etc/service/unicorn
+ADD etc/service/unicorn/run /etc/service/unicorn/run
+RUN chmod +x /etc/service/unicorn/run
+
+# Add sidekiq runit start up
+RUN mkdir -p /etc/service/sidekiq
+ADD etc/service/sidekiq/run /etc/service/sidekiq/run
+RUN chmod +x /etc/service/sidekiq/run
+
 # Add the setup scripts
 ADD etc/my_init.d/99a_setup_application_database.sh /etc/my_init.d/99a_setup_application_database.sh
 RUN chmod +x /etc/my_init.d/99a_setup_application_database.sh
-
 
 # Regenerate SSH host keys. baseimage-docker does not contain any, so you
 # have to do that yourself. You may also comment out this instruction; the
 # init system will auto-generate one during boot.
 RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 
+RUN mkdir -p /home/gitlab_ci/gitlab-ci/log
+RUN chown gitlab_ci /home/gitlab_ci/gitlab-ci/log
+
+
+# Add Nginx
+RUN apt-get install --yes --quiet nginx
+RUN rm /etc/nginx/sites-enabled/default
+
+RUN mkdir -p /etc/service/nginx
+ADD etc/service/nginx/run /etc/service/nginx/run
+RUN chmod +x /etc/service/nginx/run
+
+ADD etc/nginx/sites-available/gitlab_ci /etc/nginx/sites-available/gitlab_ci
+RUN ln -s /etc/nginx/sites-available/gitlab_ci /etc/nginx/sites-enabled/gitlab_ci
+
+
+
+# Add SMTP Settings
+# ADD home/gitlab_ci/gitlab-ci/config/initializers/smtp_settings.rb /home/gitlab_ci/gitlab-ci/config/initializers/smtp_settings.rb
+
+
+
+RUN apt-get install --yes tmux
+
+
+
+
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
-
+WORKDIR /home/gitlab_ci/gitlab-ci
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# following https://gitlab.com/gitlab-org/gitlab-ci/blob/master/doc/install/installation.md
