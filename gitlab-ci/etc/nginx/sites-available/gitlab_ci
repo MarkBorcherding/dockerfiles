@@ -7,8 +7,8 @@ upstream gitlab_ci {
 }
 
 server {
-  listen 80 default_server;         # e.g., listen 192.168.1.1:80;
-  server_name ci.gitlab.org;     # e.g., server_name source.example.com;
+  listen 80 default_server;         # TODO: change ip listen 192.168.1.1:80;
+  server_name ci.gitlab.org;        # TODO: change fqdn server_name source.example.com;
   root /home/gitlab_ci/gitlab-ci/public;
 
   access_log  /var/log/nginx/gitlab_ci_access.log;

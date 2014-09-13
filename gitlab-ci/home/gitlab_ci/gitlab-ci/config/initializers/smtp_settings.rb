@@ -6,6 +6,8 @@
 if Rails.env.production?
   ActionMailer::Base.delivery_method = :smtp
 
+
+  # TODO: change email settings
   ActionMailer::Base.smtp_settings = {
     address: "email.server.com",
     port: 456,

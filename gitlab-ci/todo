@@ -1,0 +1,3 @@
+#!/bin/bash
+
+grep --directories=recurse TODO . | grep -v /.todo
