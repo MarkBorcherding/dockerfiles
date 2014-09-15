@@ -119,17 +119,8 @@ RUN chmod +x /etc/service/nginx/run
 ADD etc/nginx/sites-available/gitlab_ci /etc/nginx/sites-available/gitlab_ci
 RUN ln -s /etc/nginx/sites-available/gitlab_ci /etc/nginx/sites-enabled/gitlab_ci
 
-
-
 # Add SMTP Settings
 # ADD home/gitlab_ci/gitlab-ci/config/initializers/smtp_settings.rb /home/gitlab_ci/gitlab-ci/config/initializers/smtp_settings.rb
-
-
-
-RUN apt-get install --yes tmux
-
-
-
 
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]

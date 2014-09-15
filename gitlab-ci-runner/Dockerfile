@@ -93,3 +93,9 @@ RUN chmod +x /etc/service/redis/run
 RUN mkdir -p /etc/service/gitlab-ci-runner
 ADD etc/service/gitlab-ci-runner/run /etc/service/gitlab-ci-runner/run
 RUN chmod +x /etc/service/gitlab-ci-runner/run
+
+# Clean up APT when done.
+RUN apt-get clean && \
+    rm -rf /tmp/* \
+           /var/lib/apt/lists/* \
+           /var/tmp/*
