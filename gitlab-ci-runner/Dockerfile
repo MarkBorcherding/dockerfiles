@@ -66,9 +66,9 @@ RUN cd gitlab-ci-runner.git && \
 
 RUN apt-get install --yes --quiet redis-server
 
-RUN echo "mysql-server mysql-server/root_password password " | debconf-set-selections && \
-    echo "mysql-server mysql-server/root_password_again password " | debconf-set-selections
-    apt-get install --yes --quiet  \
+# Install mysql without root password
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get install --yes --quiet  \
       libmysqlclient-dev \
       mysql-client  \
       mysql-server

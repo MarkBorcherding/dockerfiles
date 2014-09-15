@@ -2,6 +2,7 @@ docker run \
   --interactive \
   --tty \
   --publish 80:80 \
+  --rm
   markborcherding/gitlab-ci  \
   /bin/bash
 
