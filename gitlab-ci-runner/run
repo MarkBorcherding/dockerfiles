@@ -1,0 +1,5 @@
+docker run \
+  --interactive \
+  --tty \
+  markborcherding/gitlab-ci-runner \
+  /bin/bash

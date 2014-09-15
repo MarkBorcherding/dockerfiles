@@ -1,0 +1,1 @@
+docker build -t markborcherding/gitlab-ci-runner .
