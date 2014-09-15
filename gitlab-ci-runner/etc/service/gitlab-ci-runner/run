@@ -1,0 +1,4 @@
+#!/bin/bash
+
+RUN cd gitlab-ci-runner.git
+exec bundle exec ./bin/setup_and_run

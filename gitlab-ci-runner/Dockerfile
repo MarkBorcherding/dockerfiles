@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM phusion/baseimage:0.9.13
 MAINTAINER Mark Borcherding <MarkBorcherding@gmail.com>
 
 # Forked from https://github.com/gitlabhq/gitlab-ci-runner/blob/master/Dockerfile
@@ -19,9 +19,6 @@ MAINTAINER Mark Borcherding <MarkBorcherding@gmail.com>
 #
 # If you ever want to freshly rebuild the runner please use:
 # docker build -no-cache -t gitlabhq/gitlab-ci-runner github.com/gitlabhq/gitlab-ci-runner
-
-# Get rid of the debconf messages
-ENV DEBIAN_FRONTEND noninteractive
 
 # Update your packages and install the ones that are needed to compile Ruby
 RUN apt-get update --yes && \
@@ -71,18 +68,28 @@ RUN apt-get install --yes --quiet redis-server
 
 RUN echo "mysql-server mysql-server/root_password password " | debconf-set-selections && \
     echo "mysql-server mysql-server/root_password_again password " | debconf-set-selections
-    apt-get install --yes --quiet mysql-server mysql-client libmysqlclient-dev
+    apt-get install --yes --quiet  \
+      libmysqlclient-dev \
+      mysql-client  \
+      mysql-server
 
-RUN apt-get install --yes --quiet libqtwebkit-dev # test with capybara
-RUN apt-get install --yes --quiet sqlite3 libsqlite3-dev # sqlite is the default datastore
-RUN apt-get install --yes --quiet libmysqlclient-dev # native extensions for the mysql2 gem
-
+RUN apt-get install --yes --quiet libqtwebkit-dev         # test with capybara
+RUN apt-get install --yes --quiet sqlite3 libsqlite3-dev  # sqlite is the default datastore
 
 # When the image is started add the remote server key, set up the runner and run it
 WORKDIR /gitlab-ci-runner.git
 
-CMD ssh-keyscan -H $GITLAB_SERVER_FQDN >> \
-  /root/.ssh/known_hosts && \
-  mysqld & \
-  /root/redis-stable/src/redis-server & \
-  bundle exec ./bin/setup_and_run
+# Add runit mysql start up
+RUN mkdir -p /etc/service/mysql
+ADD etc/service/mysql/run /etc/service/mysql/run
+RUN chmod +x /etc/service/mysql/run
+
+# Add runit redis start up
+RUN mkdir -p /etc/service/redis
+ADD etc/service/redis/run /etc/service/redis/run
+RUN chmod +x /etc/service/redis/run
+
+# Add runit gitlab-ci-runner start up
+RUN mkdir -p /etc/service/gitlab-ci-runner
+ADD etc/service/gitlab-ci-runner/run /etc/service/gitlab-ci-runner/run
+RUN chmod +x /etc/service/gitlab-ci-runner/run
