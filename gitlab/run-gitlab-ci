@@ -3,5 +3,5 @@ docker run --name=gitlab-ci \
            --tty \
            --rm \
            --publish 10088:80 \
-           --link gitlab:gitlab \
+           --env GITLAB_URL=http://192.168.59.103:10080 \
            sameersbn/gitlab-ci:5.0.1-1
