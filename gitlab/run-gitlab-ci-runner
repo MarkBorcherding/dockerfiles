@@ -1,0 +1,5 @@
+docker run --name gitlab-ci-runner \
+           --interactive \
+           --tty \
+           --rm \
+          sameersbn/gitlab-ci-runner:5.0.0-1

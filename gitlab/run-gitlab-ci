@@ -1,0 +1,7 @@
+docker run --name=gitlab-ci \
+           --interactive \
+           --tty \
+           --rm \
+           --publish 10088:80 \
+           --link gitlab:gitlab \
+           sameersbn/gitlab-ci:5.0.1-1
