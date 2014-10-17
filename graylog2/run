@@ -1,0 +1,11 @@
+docker run --rm \
+  --interactive \
+  --tty \
+  --publish 80:80 \
+  --rm \
+  --env GRAYLOG2_PASSWORD=mypassword \
+  --publish 9000:9000 \
+  --publish 12201:12201 \
+  --publish 12202:12202 \
+  --publish 12900:12900 \
+  sjoerdmulder/graylog2

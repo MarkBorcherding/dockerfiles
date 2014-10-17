@@ -13,7 +13,7 @@ RUN cd /usr/local/src &&\
     ./install.sh
 
 # Install Ruby
-RUN ruby-build 1.9.3-p547 /usr/local
+RUN ruby-build 2.1.3 /usr/local
 
 # Update
 RUN gem update --system

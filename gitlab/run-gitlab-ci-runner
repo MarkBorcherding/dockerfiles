@@ -2,5 +2,6 @@ docker run --name gitlab-ci-runner \
            --interactive \
            --tty \
            --rm \
-           -v /opt/gitlab-ci-runner:/home/gitlab_ci_runner/data \
-          sameersbn/gitlab-ci-runner:5.0.0-1
+           --volume $(pwd)/opt/gitlab-ci-runner:/home/gitlab_ci_runner/data \
+           --link gitlab-ci:gitlab-ci \
+           sameersbn/gitlab-ci-runner:5.0.0-1

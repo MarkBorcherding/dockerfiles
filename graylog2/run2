@@ -1,0 +1,1 @@
+docker run -it -p 9000:9000 -p 514:514 -p 12201:12201 jamescarr/graylog2
