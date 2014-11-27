@@ -2,10 +2,6 @@
 FROM debian:7.7
 
 RUN apt-get update && \
-    apt-get install --yes sudo && \
-    apt-get clean
-
-RUN apt-get update && \
     apt-get --yes install \
                   autoconf \
                   bison \
