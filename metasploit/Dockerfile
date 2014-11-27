@@ -1,9 +1,9 @@
+# Following the instructions at https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment
 FROM debian:7.7
 
 RUN apt-get update && \
     apt-get install --yes sudo && \
     apt-get clean
-
 
 RUN apt-get update && \
     apt-get --yes install \
@@ -36,9 +36,26 @@ RUN apt-get update && \
                   zlib1g-dev && \
     apt-get clean
 
+# Use and blow away ruby-build
 RUN git clone https://github.com/sstephenson/ruby-build.git /usr/src/ruby-build && \
     cd /usr/src/ruby-build && \
     ./install.sh && \
     cd && \
     ruby-build 2.1.5 /usr/local && \
     rm -rf /usr/src/ruby-build
+
+# Always forget the ruby docs
+RUN echo "gem: --no-rdoc --no-ri " >> /usr/local/etc/gemrc
+
+# Update
+RUN gem update --system
+
+# Grab Bundler
+RUN gem install bundler
+
+# Clone the framework
+RUN git clone https://github.com/rapid7/metasploit-framework.git /usr/local/src/metasploit-framework
+
+RUN cd /usr/local/src/metasploit-framework && \
+    bundle install
+
