@@ -1,8 +1,8 @@
-.PHONEY: all build
+.PHONEY: all build debug run
 
 include settings.make
 
-all: build debug
+all: build run
 
 build:
 	docker build --tag ${IMAGE_NAME} .
@@ -14,3 +14,8 @@ debug: build
 						 ${IMAGE_NAME} \
 						 /bin/bash
 
+run: build
+	docker run --tty \
+						 --interactive \
+						 --rm \
+						 ${IMAGE_NAME}
