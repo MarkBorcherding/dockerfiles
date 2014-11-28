@@ -55,3 +55,4 @@ RUN git clone https://github.com/rapid7/metasploit-framework.git /usr/local/src/
 RUN cd /usr/local/src/metasploit-framework && \
     bundle install
 
+CMD ['/usr/local/src/metasploit-framework/msfconsole']
