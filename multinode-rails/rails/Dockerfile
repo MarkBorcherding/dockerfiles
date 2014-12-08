@@ -27,6 +27,7 @@ RUN mkdir -p /usr/local/src && \
 RUN ruby-build 2.1.5 /usr/local
 
 RUN gem update --system
+RUN gem install bundler
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7 && \
     apt-get install --yes apt-transport-https ca-certificates && \
@@ -37,3 +38,19 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7 &&
     apt-get install --yes passenger && \
     apt-get clean
 
+RUN apt-get install --yes \
+            libsqlite3-dev \
+            sqlite3 \
+            && \
+    apt-get clean
+
+RUN mkdir /web_app
+ADD example_app/Gemfile /web_app/
+ADD example_app/Gemfile.lock /web_app/
+RUN cd /web_app && \
+    bundle
+
+RUN mkdir -p /etc/service/web_app
+ADD etc/service/web_app /etc/service/web_app
+RUN chmod +x /etc/service/web_app/run
+RUN chmod +x /etc/service/web_app/log/run
