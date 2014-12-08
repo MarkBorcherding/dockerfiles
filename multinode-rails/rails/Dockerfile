@@ -50,7 +50,6 @@ ADD example_app/Gemfile.lock /web_app/
 RUN cd /web_app && \
     bundle
 
-RUN mkdir -p /etc/service/web_app
 ADD etc/service/web_app /etc/service/web_app
-RUN chmod +x /etc/service/web_app/run
-RUN chmod +x /etc/service/web_app/log/run
+RUN chmod +x /etc/service/web_app/run && \
+    chmod +x /etc/service/web_app/log/run
