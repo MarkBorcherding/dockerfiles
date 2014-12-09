@@ -35,7 +35,10 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7 &&
     chown root: /etc/apt/sources.list.d/passenger.list && \
     chmod 600 /etc/apt/sources.list.d/passenger.list && \
     apt-get update && \
-    apt-get install --yes passenger && \
+    apt-get install --yes \
+            nginx-extras \
+            passenger \
+            && \
     apt-get clean
 
 RUN apt-get install --yes \
@@ -48,8 +51,6 @@ RUN mkdir /web_app
 ADD example_app/Gemfile /web_app/
 ADD example_app/Gemfile.lock /web_app/
 RUN cd /web_app && \
-    bundle
+    bundle --without development test
 
-ADD etc/service/web_app /etc/service/web_app
-RUN chmod +x /etc/service/web_app/run && \
-    chmod +x /etc/service/web_app/log/run
+ADD etc/nginx/conf.d/passenger.conf /etc/nginx/conf.d/passenger.conf
