@@ -42,10 +42,16 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7 &&
     apt-get clean
 
 RUN apt-get install --yes \
+            libcurl4-openssl-dev \
             libsqlite3-dev \
+            nodejs \
             sqlite3 \
             && \
     apt-get clean
+
+ADD etc/nginx/conf.d/passenger.conf /etc/nginx/conf.d/
+
+RUN passenger-install-nginx-module --auto --languages ruby
 
 RUN mkdir /web_app
 ADD example_app/Gemfile /web_app/
@@ -53,4 +59,9 @@ ADD example_app/Gemfile.lock /web_app/
 RUN cd /web_app && \
     bundle --without development test
 
-ADD etc/nginx/conf.d/passenger.conf /etc/nginx/conf.d/passenger.conf
+RUN rm /etc/nginx/sites-enabled/default
+ADD etc/nginx/sites-available/web_app.conf /etc/nginx/sites-available/
+RUN ln -s /etc/nginx/sites-available/web_app.conf /etc/nginx/sites-enabled/web_app.conf
+
+ADD example_app/ /web_app
+
