@@ -1,0 +1,5 @@
+docker run --name graphite \
+           --publish 8000:80 \
+           --publish 12003:2003 \
+           --publish 18125:8125/udp \
+           hopsoft/graphite-statsd
